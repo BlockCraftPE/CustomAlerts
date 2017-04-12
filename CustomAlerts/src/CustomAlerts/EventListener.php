@@ -36,43 +36,47 @@ use CustomAlerts\Events\CustomAlertsWhitelistKickEvent;
 use CustomAlerts\Events\CustomAlertsWorldChangeEvent;
 
 class EventListener implements Listener {
-	
+
 	public function __construct(CustomAlerts $plugin){
         $this->plugin = $plugin;
     }
-    
+
     public function onReceivePacket(DataPacketReceiveEvent $event){
     	$player = $event->getPlayer();
     	$packet = $event->getPacket();
-    	if($packet->pid() == Info::LOGIN_PACKET){
-    		if($packet->protocol < Info::CURRENT_PROTOCOL){
-    			//Check if outdated client message is custom
-    			if(CustomAlerts::getAPI()->isOutdatedClientMessageCustom()){
-    				CustomAlerts::getAPI()->setOutdatedClientMessage(CustomAlerts::getAPI()->getDefaultOutdatedClientMessage($player));
-    			}
-    			//Outdated Client Kick Event
-    			$this->plugin->getServer()->getPluginManager()->callEvent(new CustomAlertsOutdatedClientKickEvent($player));
-    			//Check if Outdated Client message is not empty
-    			if(CustomAlerts::getAPI()->getOutdatedClientMessage() != null){
-    				$player->close("", CustomAlerts::getAPI()->getOutdatedClientMessage());
-    				$event->setCancelled(true);
-    			}
-    		}elseif($packet->protocol > Info::CURRENT_PROTOCOL){
-    			//Check if outdated server message is custom
-    			if(CustomAlerts::getAPI()->isOutdatedServerMessageCustom()){
-    				CustomAlerts::getAPI()->setOutdatedServerMessage(CustomAlerts::getAPI()->getDefaultOutdatedServerMessage($player));
-    			}
-    			//Outdated Server Kick Event
-    			$this->plugin->getServer()->getPluginManager()->callEvent(new CustomAlertsOutdatedServerKickEvent($player));
-    			//Check if Outdated Server message is not empty
-    			if(CustomAlerts::getAPI()->getOutdatedServerMessage() != null){
-    				$player->close("", CustomAlerts::getAPI()->getOutdatedServerMessage());
-    				$event->setCancelled(true);
-    			}
+    	if($packet->pid() === Info::LOGIN_PACKET){
+				if(!in_array($packet->protocol, Info::ACCEPTED_PROTOCOLS)){
+  					if($packet->protocol < Info::CURRENT_PROTOCOL){
+		    			//Check if outdated client message is custom
+		    			if(CustomAlerts::getAPI()->isOutdatedClientMessageCustom()){
+		    				CustomAlerts::getAPI()->setOutdatedClientMessage(CustomAlerts::getAPI()->getDefaultOutdatedClientMessage($player));
+		    			}
+		    			//Outdated Client Kick Event
+		    			$this->plugin->getServer()->getPluginManager()->callEvent(new CustomAlertsOutdatedClientKickEvent($player));
+		    			//Check if Outdated Client message is not empty
+		    			if(CustomAlerts::getAPI()->getOutdatedClientMessage() != null){
+		    				$player->close("", CustomAlerts::getAPI()->getOutdatedClientMessage());
+		    				$event->setCancelled(true);
+		    		}
+					}
+    		}elseif(!in_array($packet->protocol, Info::ACCEPTED_PROTOCOLS)){
+  					if($packet->protocol > Info::CURRENT_PROTOCOL){
+		    			//Check if outdated server message is custom
+		    			if(CustomAlerts::getAPI()->isOutdatedServerMessageCustom()){
+		    				CustomAlerts::getAPI()->setOutdatedServerMessage(CustomAlerts::getAPI()->getDefaultOutdatedServerMessage($player));
+		    			}
+		    			//Outdated Server Kick Event
+		    			$this->plugin->getServer()->getPluginManager()->callEvent(new CustomAlertsOutdatedServerKickEvent($player));
+		    			//Check if Outdated Server message is not empty
+		    			if(CustomAlerts::getAPI()->getOutdatedServerMessage() != null){
+		    				$player->close("", CustomAlerts::getAPI()->getOutdatedServerMessage());
+		    				$event->setCancelled(true);
+							}		
+						}
+					}
     		}
     	}
-    }
-    
+
     /**
      * @param PlayerPreLoginEvent $event
      *
@@ -108,7 +112,7 @@ class EventListener implements Listener {
     		}
     	}
     }
-    
+
     /**
      * @param PlayerJoinEvent $event
      *
@@ -153,7 +157,7 @@ class EventListener implements Listener {
     	$this->plugin->getServer()->getPluginManager()->callEvent(new CustomAlertsJoinEvent($player, $event->getJoinMessage()));
     	$event->setJoinMessage(CustomAlerts::getAPI()->getJoinMessage());
     }
-    
+
     /**
      * @param PlayerQuitEvent $event
      *
@@ -184,7 +188,7 @@ class EventListener implements Listener {
     	 $this->plugin->getServer()->getPluginManager()->callEvent(new CustomAlertsQuitEvent($player, $event->getQuitMessage()));
     	 $event->setQuitMessage(CustomAlerts::getAPI()->getQuitMessage());
     }
-    
+
     public function onWorldChange(EntityLevelChangeEvent $event){
     	$entity = $event->getEntity();
     	CustomAlerts::getAPI()->setWorldChangeMessage("");
@@ -204,8 +208,8 @@ class EventListener implements Listener {
     		}
     	}
     }
-    
-    
+
+
     /**
      * @param PlayerDeathEvent $event
      *
@@ -229,6 +233,6 @@ class EventListener implements Listener {
     		$event->setDeathMessage(CustomAlerts::getAPI()->getDeathMessage());
     	}
     }
-	
+
 }
 ?>

@@ -6,7 +6,7 @@ Motd:
   message: "&e[{TIME}] &aWelcome to your server! &n&b[{TOTALPLAYERS}/{MAXPLAYERS}]"
 OutdatedClient:
   custom: true
-  message: "&cPlease update your MCPE to 1.0.5!"
+  message: "&cPlease update your MCPE to 1.0.6!"
 OutdatedServer:
   custom: true
   message: "&cThis server is not working on your MCPE version!"
